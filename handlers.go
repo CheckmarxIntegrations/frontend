@@ -25,6 +25,7 @@ import (
 	"strconv"
 	"strings"
 	"time"
+	"math"
 
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -224,7 +225,8 @@ func (fe *frontendServer) addToCartHandler(w http.ResponseWriter, r *http.Reques
 	log := r.Context().Value(ctxKeyLog{}).(logrus.FieldLogger)
 	quantity, _ := strconv.ParseUint(r.FormValue("quantity"), 10, 32)
 	productID := r.FormValue("product_id")
-	if productID == "" || quantity == 0 {
+	// Ensure quantity is within bounds of int32 and greater than zero
+	if productID == "" || quantity == 0 || quantity > math.MaxInt32 {
 		renderHTTPError(log, r, w, errors.New("invalid form input"), http.StatusBadRequest)
 		return
 	}
